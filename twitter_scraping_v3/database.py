@@ -362,7 +362,7 @@ if __name__ == "__main__":
     twitter.driver.get(twitter.URL + "/login")
 
     twitter.login(login_username, login_password)
-    username = "ciftogluuu"
+    username = "taskinccan"
     DatabaseHelper._DatabaseHelper__create_user(app, twitter, username)
     #DatabaseHelper._DatabaseHelper__find_posts(app, twitter, username)
 
