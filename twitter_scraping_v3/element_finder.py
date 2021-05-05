@@ -116,6 +116,8 @@ class Finder():
                                                                              "//*[@class='css-1dbjc4n r-18u37iz r-1wbh5a2']")
                 user_elements = driver.find_elements_by_xpath("//*[@class='css-1dbjc4n r-18u37iz r-1wbh5a2']")
                 for element in user_elements:
+                    if len(username_list) == following_number:
+                        break
                     username = HelperFunctions._HelperFunctions__extract_username(element.text)
                     username_list.append(username)
                 username_list = list(set(username_list))
@@ -140,10 +142,12 @@ class Finder():
                 user_elements = driver.find_elements_by_xpath(
                     "//*[@class='css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-1wbh5a2 r-dnmrzs r-1ny4l3l']")
                 for element in user_elements:
+                    if len(username_list) == follower_number:
+                        break
                     username = HelperFunctions._HelperFunctions__extract_username(element.text)
                     username_list.append(username)
                 username_list = list(set(username_list))
-                if len(username_list) >= follower_number - 5:
+                if len(username_list) >= follower_number:
                     break
                 DriverFunctions._DriverFunctions__scroll_down(driver, SCROLL_PAUSE_TIME=0.5, SCROLL_NUMBER=1)
         except:
@@ -160,7 +164,7 @@ class Finder():
     def __find_profile_img(driver, username):
 
         profile_img_url = "twitter.com" + "/" + username + "/photo"
-        #profile_img_url = driver.find_element_by_xpath(href).find_element_by_tag_name("img").get_attribute("src")
+        # profile_img_url = driver.find_element_by_xpath(href).find_element_by_tag_name("img").get_attribute("src")
 
         return profile_img_url
 
@@ -363,20 +367,39 @@ class Finder():
     @staticmethod
     def __find_posts(driver, username, post_number):
         post_info_list = []
+        post_reply_list = []
         DriverFunctions._DriverFunctions__wait_for_element_to_appear(driver, "xpath", "//*[@role='article']")
-
+        count = 0
         while True:
 
-            post_elements = driver.find_elements_by_xpath('//*[@role="article"]')
+            post_elements = driver.find_elements_by_xpath('//*[@data-testid="tweet"]')
+
             for post in post_elements:
                 try:
+                    try:
+                        post_url = post.find_elements_by_tag_name("a")[2].get_attribute("href")
+                    except:
+                        post_url = post.find_element_by_xpath("//*[@class = 'css-901oao r-1fmj7o5 r-1qd0xha r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0']")
 
-                    post_url = post.find_elements_by_tag_name("a")[2].get_attribute("href")
-                    if username not in post_url:
-                        continue
                     post_date = post.find_element_by_tag_name("time").get_attribute("datetime")
                     post_info = {"post_url": post_url, "post_date": post_date}
-                    post_info_list.append(post_info)
+                    if username not in post_url:
+                       post_reply_list.append(post_info)
+                       post_reply_list = list({x['post_url']: x for x in post_reply_list}.values())
+                    else:
+                        post_info_list.append(post_info)
+                    count += 1
+
+                    if DriverFunctions._DriverFunctions__check_exists_by_xpath(driver, ".//*[@class='css-1dbjc4n r-gu4em3 r-16y2uox r-1jgb5lz r-14gqq1x r-m5arl1']"):
+                        next_post = driver.find_elements_by_xpath('.//*[@data-testid="tweet"]')[count]
+                        post_url = next_post.find_elements_by_tag_name("a")[2].get_attribute("href")
+                        # if username not in post_url:
+                        #   continue
+                        post_date = next_post.find_element_by_tag_name("time").get_attribute("datetime")
+                        post_info = {"post_url": post_url, "post_date": post_date, "reply_dict":post_reply_list}
+                        post_info_list.append(post_info)
+                    if len(post_info_list) >= post_number:
+                        break
                 except:
                     continue
             post_info_list = list({x['post_url']: x for x in post_info_list}.values())
@@ -384,6 +407,7 @@ class Finder():
                 break
             DriverFunctions._DriverFunctions__scroll_down(driver, SCROLL_PAUSE_TIME=0.5, SCROLL_NUMBER=1)
             time.sleep(3)
+        post_info_list.append(post_reply_list)
         posts = Finder._Finder__find_post_details(driver, post_info_list)
         return posts
 
