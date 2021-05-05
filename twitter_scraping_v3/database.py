@@ -250,7 +250,7 @@ class App:
             result = session.write_transaction(
                 self._create_and_return_liked_post_relationship, post_id, username)
             for record in result:
-                print("Created liked post between: {c}, {u}".format(u=record['u'], p=record['p']))
+                print("Created liked post between: {u}, {p}".format(u=record['u'], p=record['p']))
 
     @staticmethod
     def _create_and_return_liked_post_relationship(tx, post_id, username):
@@ -348,6 +348,31 @@ class App:
                 query=query, exception=exception))
             raise
 
+    def create_replied_post_relationship(self, post_id_1, post_id_2):
+        with self.driver.session() as session:
+            # Write transactions allow the driver to handle retries and transient errors
+            result = session.write_transaction(
+                self._create_and_return_replied_post_relationship, post_id_1, post_id_2)
+            for record in result:
+                print("Created replied between: {p1}, {p2}".format(p1=record['p1'], p2=record['p2']))
+
+    @staticmethod
+    def _create_and_return_replied_post_relationship(tx, post_id_1, post_id_2):
+
+        query = (
+            "MATCH (p1:TwitterPost), (p2:TwitterPost) "
+            "WHERE p1.post_id =$post_id_1 AND p2.post_id = $post_id_2 "
+            "MERGE (p1)-[:REPLIED]->(p2) "
+            "RETURN p1, p2 "
+        )
+        result = tx.run(query, post_id_1=post_id_1, post_id_2=post_id_2)
+        try:
+            return [{"p1": record["p1"]["post_content"], "p2": record["p2"]["post_content"]} for record in result]
+
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
 
 if __name__ == "__main__":
     port = 7687
@@ -355,15 +380,23 @@ if __name__ == "__main__":
     usr = "neo4j"
     password = "123456"
     app = App(url, usr, password)
-    login_username = "taskinccan"
-    login_password = "ufxlbM5*tZQn"
+    # mail = kdrhnkrhn@yahoo.com  id = uberseyler  pass = über787%#şey
+    # mail = somemema84@yahoo.com  id= somemema   pass = RdcCan..
+    # phone = 5424194117   id= bakbucokguzel  pass = bbCGcom787%*
+
+    login_username = "bakbucokguzel"
+    login_password = "bbCGcom787%*"
     twitter = scraper.Twitter_scraper()
     twitter.start_driver()
     twitter.driver.get(twitter.URL + "/login")
 
     twitter.login(login_username, login_password)
-    username = "taskinccan"
-    DatabaseHelper._DatabaseHelper__create_user(app, twitter, username)
-    #DatabaseHelper._DatabaseHelper__find_posts(app, twitter, username)
+    username = "ciftogluuu"
+
+    # DatabaseHelper._DatabaseHelper__create_user(app, twitter, username)
+
+    DatabaseHelper._DatabaseHelper__find_posts(app, twitter, username)
+
+    # DatabaseHelper._DatabaseHelper__find_posts(app, twitter, username)
 
     app.close()

@@ -7,8 +7,6 @@ from driver_initialization import Initializer
 from driver_functions import DriverFunctions
 from helper import HelperFunctions
 
-login_username = "bakbucokguzel"
-password = "bbCGcom787%*"
 
 class Twitter_scraper():
 	URL = "https://www.twitter.com"
@@ -70,16 +68,24 @@ class Twitter_scraper():
 		"""
 		# user_profile = self.get_user_profile(username, True)
 		# print(user_profile)
+		if post_number is None:
+			profile_dict = self.get_user_profile( username, False)
+			post_number = profile_dict["post_number"]
 
-
-		url = "%s/%s/" % (self.URL, username)
+		url = "%s/%s/with_replies" % (self.URL, username)
 		self.driver.get(url)
+
 		DriverFunctions._DriverFunctions__wait_for_element_to_appear(self.driver,"xpath", "//*[@role='main']")
 		results = Finder._Finder__find_posts(self.driver, username, post_number)
 		if len(self.driver.window_handles)>2:
 			DriverFunctions._DriverFunctions__close_current_tab(self.driver)
 		return results
 
+	def get_user_posts_with_url(self, post_info_list):
+
+		results = Finder._Finder__find_post_details(self.driver, post_info_list)
+
+		return results
 
 
 	def search_hashtag(self, hashtag, post_number=10):

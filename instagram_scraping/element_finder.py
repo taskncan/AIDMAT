@@ -56,6 +56,7 @@ class Finder():
         except:
             like_num = 0
             likers = []
+        driver.find_element_by_xpath("//*[@aria-label='Close']").click()
         return {"like_num": like_num, "likers": likers}
 
     @staticmethod
@@ -65,37 +66,9 @@ class Finder():
 			replies buttons to make every comment visible. then get every comment with its replies.
 		"""
 
-        try:
-            load_more_comment = driver.find_element_by_css_selector('.MGdpg > button:nth-child(1)')
-            # print("Found {}".format(str(load_more_comment)))
-
-            while load_more_comment:
-                load_more_comment.click()
-                time.sleep(1.5)
-                load_more_comment = driver.find_element_by_css_selector('.MGdpg > button:nth-child(1)')
-            # print("Found {}".format(str(load_more_comment)))
-
-        except Exception:
-            # print(e)
-            pass
-
-        try:
-            load_replies = driver.find_element_by_xpath("//*[contains(text(),'Yanıtları gör')]")
-            # print("Found {}".format(str(load_replies)))
-
-            while load_replies:
-                load_replies.click()
-                time.sleep(1.5)
-                load_replies = driver.find_element_by_xpath("//*[contains(text(),'Yanıtları gör')]")
-            # print("Found {}".format(str(load_replies)))
-        except Exception:
-            # print(e)
-            pass
-
         comment_list = []
         comment_blocks = driver.find_elements_by_class_name('Mr508')
         for item in comment_blocks:
-
             comment = {}
             reply_list = []
             try:
@@ -109,14 +82,24 @@ class Finder():
             except:
                 continue
             try:
-                replies = item.find_elements_by_xpath("//*[@class='gElp9 rUo9f lDe-V']")
+                try:
+                    load_replies = driver.find_element_by_xpath("//*[@class='sqdOP yWX7d    y3zKF     ']")
+                    # print("Found {}".format(str(load_replies)))
+                    load_replies.click()
+                    time.sleep(1.5)
+
+                except Exception:
+                    # print(e)
+                    pass
+
+                replies = item.find_elements_by_class_name('TCSYW')
                 if replies == []:
                     raise Exception
                 for reply in replies:
                     reply_dict = {}
                     r_user = reply.find_element_by_tag_name("a").get_attribute("href")
                     r_user = r_user.split('/')[3]
-                    r_text = reply.find_elements_by_tag_name("span")[1].text
+                    r_text = reply.find_elements_by_tag_name("span")[2].text
                     r_text = r_text.split(' ', 1)[1]
                     reply_dict["username"] = r_user
                     reply_dict["text"] = r_text
@@ -127,7 +110,6 @@ class Finder():
                 reply_dict = {}
                 reply_list.append(reply_dict)
                 comment["reply_dict"] = reply_list
-                comment_list.append(comment)
         return comment_list
 
     @staticmethod
@@ -210,7 +192,7 @@ class Finder():
                 "padding-top")
             if lastHeight == height:
                 match = True
-        # close_element = driver.find_element_by_xpath('//*[@aria-label="Kapat"]').click()
+        # close_element = driver.find_element_by_xpath('//*[@aria-label="Close"]').click()
         return liker_list
 
     @staticmethod
@@ -226,7 +208,7 @@ class Finder():
         follower_list = []
         for element in follower_elements:
             follower_list.append(element.text)
-        driver.find_element_by_xpath("//*[@aria-label='Kapat']").click()
+        driver.find_element_by_xpath("//*[@aria-label='Close']").click()
         return follower_list
 
     @staticmethod
@@ -245,7 +227,7 @@ class Finder():
             following_list = []
             for element in following_elements:
                 following_list.append(element.text)
-            driver.find_element_by_xpath("//*[@aria-label='Kapat']").click()
+            driver.find_element_by_xpath("//*[@aria-label='Close']").click()
             return following_list
         else:
             return []
@@ -334,7 +316,7 @@ class Finder():
         else:
             likes = Finder._Finder__find_post_likes(driver)
 
-        comment_dict = Finder._Finder__find_post_comments(driver)
+        comment_dict = Finder._Finder__find_post_comments(driver) # 2 kere ayni seyi aliyor
         img_element = driver.find_element_by_css_selector(".KL4Bh img")
         img_desc = img_element.get_attribute("alt")
         caption_dict = Finder._Finder__find_caption(driver)

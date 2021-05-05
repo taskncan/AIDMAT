@@ -432,30 +432,32 @@ if __name__ == "__main__":
     # login_username = "rdcplus"
     # login_password = "rdc.plusSM20*"
 
-    # login_username = "anrdc7"
-    # login_password = "Can657006.."
+    login_username = "anrdc7"
+    login_password = "Can657006.."
 
-    login_username = sys.argv[1]
-    login_password = sys.argv[2]
+    #login_username = sys.argv[1]
+    #login_password = sys.argv[2]
 
     instagram.start_driver()
     instagram.driver.get(instagram.URL)
     instagram.login(login_username, login_password)
 
-    option = sys.argv[3]
-    if option == 'create_user':
-        username = sys.argv[4]
-        DatabaseHelper._DatabaseHelper__create_detailed_user(app, instagram, username)
-    elif option == 'create_posts':
-        username = sys.argv[4]
-        try:
-            post_num = sys.argv[5]
-        except:
-            post_num = None
-        DatabaseHelper._DatabaseHelper__find_posts(instagram, app, username, post_num=post_num)
-    elif option == 'hashtag_search':
-        keyword = sys.argv[4]
-        post_num = sys.argv[5]
-        DatabaseHelper._DatabaseHelper__find_hashtag_posts(instagram, app, keyword, post_num=post_num)
+    username =  "taskinccan"
+
+    #option = sys.argv[3]
+    #if option == 'create_user':
+        #username = sys.argv[4]
+    #DatabaseHelper._DatabaseHelper__create_detailed_user(app, instagram, username)
+    #elif option == 'create_posts':
+        #username = sys.argv[4]
+        #try:
+            #post_num = sys.argv[5]
+        #except:
+            #post_num = None
+    DatabaseHelper._DatabaseHelper__find_posts(instagram, app, username, post_num=6)
+    #elif option == 'hashtag_search':
+        #keyword = sys.argv[4]
+        #post_num = sys.argv[5]
+        #DatabaseHelper._DatabaseHelper__find_hashtag_posts(instagram, app, keyword, post_num=post_num)
     instagram.driver.quit()
     app.close()
