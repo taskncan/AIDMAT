@@ -250,7 +250,7 @@ class App:
             result = session.write_transaction(
                 self._create_and_return_liked_post_relationship, post_id, username)
             for record in result:
-                print("Created liked post between: {c}, {u}".format(u=record['u'], p=record['p']))
+                print("Created liked post between: {u}, {p}".format(u=record['u'], p=record['p']))
 
     @staticmethod
     def _create_and_return_liked_post_relationship(tx, post_id, username):
@@ -351,19 +351,20 @@ class App:
 
 if __name__ == "__main__":
     port = 7687
-    url = "bolt://localhost:7687"
+    url = "bolt://localhost:11025"
     usr = "neo4j"
     password = "123456"
     app = App(url, usr, password)
-    login_username = "taskinccan"
-    login_password = "ufxlbM5*tZQn"
+    login_username = "uberseyler"
+    login_password = "über787%#şey"
     twitter = scraper.Twitter_scraper()
     twitter.start_driver()
     twitter.driver.get(twitter.URL + "/login")
 
     twitter.login(login_username, login_password)
-    username = "taskinccan"
-    DatabaseHelper._DatabaseHelper__create_user(app, twitter, username)
-    #DatabaseHelper._DatabaseHelper__find_posts(app, twitter, username)
-
+    username = "ZaferErcanBalci"
+    #DatabaseHelper._DatabaseHelper__create_user(app, twitter, username)
+    DatabaseHelper._DatabaseHelper__find_posts(app, twitter, username,2)
+    print("successfully exiting")
+    twitter.driver.quit()
     app.close()

@@ -203,10 +203,13 @@ class Finder():
         DriverFunctions._DriverFunctions__wait_for_element_to_appear(driver, "xpath",
                                                                      "//*[@class='css-18t94o4 css-1dbjc4n r-1ny4l3l r-ymttw5 r-1f1sjgu r-o7ynqc r-6416eg']")
         for i in range(limit):
-            element = driver.find_element_by_xpath(
+            try:
+                element = driver.find_element_by_xpath(
                 "//*[@class='css-18t94o4 css-1dbjc4n r-1ny4l3l r-ymttw5 r-1f1sjgu r-o7ynqc r-6416eg']")
-            users_who_liked.append(element.text.split('@')[1].split()[0])
-            driver.execute_script("""var element = arguments[0];element.parentNode.removeChild(element);""", element)
+                users_who_liked.append(element.text.split('@')[1].split()[0])
+                driver.execute_script("""var element = arguments[0];element.parentNode.removeChild(element);""", element)
+            except:
+                continue
         DriverFunctions._DriverFunctions__close_current_tab(driver)
         print(users_who_liked)
         return users_who_liked
@@ -270,7 +273,7 @@ class Finder():
                 href = "/" + username + "/status/" + post_id + "/likes"
                 like_count = driver.find_element_by_xpath('//a[contains(@href, "%s")]' % href)
                 like_count = HelperFunctions._HelperFunctions__format_number(like_count.text)
-                liker_list = Finder._Finder__get_likes(driver, url + "/likes", login=True, limit=10)
+                liker_list = Finder._Finder__get_likes(driver, url + "/likes", login=True, limit=like_count)
             except NoSuchElementException:
                 like_count = 0
                 liker_list = []
@@ -336,6 +339,7 @@ class Finder():
             screen_name = driver.find_element_by_xpath("//*[@class = 'css-1dbjc4n r-1awozwy r-18u37iz r-dnmrzs']").text
             profile_img_url = Finder._Finder__find_profile_img(driver, username)
             user_description = Finder._Finder__find_user_description(driver)
+
             # gerek olmayabilir???
             user_website = Finder._Finder__find_user_website(driver)
             join_date = Finder._Finder__find_user_join_date(driver)
@@ -377,9 +381,12 @@ class Finder():
                     post_date = post.find_element_by_tag_name("time").get_attribute("datetime")
                     post_info = {"post_url": post_url, "post_date": post_date}
                     post_info_list.append(post_info)
+                    post_info_list = list({x['post_url']: x for x in post_info_list}.values())
+                    if len(post_info_list) >= post_number:
+                        break
                 except:
                     continue
-            post_info_list = list({x['post_url']: x for x in post_info_list}.values())
+            #post_info_list = list({x['post_url']: x for x in post_info_list}.values())
             if len(post_info_list) >= post_number:
                 break
             DriverFunctions._DriverFunctions__scroll_down(driver, SCROLL_PAUSE_TIME=0.5, SCROLL_NUMBER=1)
@@ -415,9 +422,6 @@ class Finder():
 
 
 """
-1)postu retweet edenlerin popupında scroll down yapamıyorum
-
-2)postu likelayanların popupında scroll down yapamıyorum
 
 3)postları alırken article taglerini bulmada sorun oluyor
 
@@ -426,8 +430,6 @@ class Finder():
 5)retweetler ayrı bi şekilde alınsın
 
 6)article tagiyle postları toplarken bazı postları atlıyo
-
-7)quotelar alınacak
 
 
 """
